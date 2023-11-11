@@ -560,20 +560,6 @@
 					case "INPUT": case "TEXTAREA":
 
 						switch(event.code) {
-							// case "ArrowUp":
-							// case "ArrowDown":
-
-							// 	if(/(birth|date)_(year|month|date)/.test(event.target.id)) {
-							// 		event.preventDefault();
-							// 	};
-							// 	$.id(arrow_ref_cache[event.target.id][event.code.toLowerCase()])?.select(); // optional chain included
-
-							// break;
-
-							// case "ArrowLeft":
-							// case "ArrowRight":
-							// 	document.getSelection()
-							// break;
 
 							case "Escape":
 
