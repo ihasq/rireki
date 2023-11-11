@@ -332,33 +332,6 @@
 			arrowdown: "phonenumber_1"
 		})(),
 
-		el("label", {
-			class: "hide_while_print",
-			id: "about_myself_fontsize_placeholder",
-			style: `
-				top: 975px;
-				left: 2000px;
-			`
-		}, [
-			"文字サイズ: ",
-			el("span", { id: "about_myself_fontsize_px" }, ["24"])(),
-			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
-			input_temp({ id: "about_myself_fontsize", type: "range", min: "20", max: "40", value: "24", style: "width: 200px"})()
-		])(),
-
-		el("textarea", {
-			id: "about_myself",
-			style: `
-				top: 1010px;
-				left: 1333px;
-				height: 311.5px;
-				width: 1003.5px;
-				font-size: 20.85px;
-			`,
-			wrap: "hard",
-			arrowdown: "wishes_0"
-		})(),
-
 		(function() {
 			let [template_string_buffer, style_top_buffer] = ["", 459];
 			for(let i = 0; i < 2; i++) {
@@ -438,7 +411,7 @@
 						id: `history_${i}_month`,
 						style: `top: ${style_top_buffer}px`,
 
-						next: `history_${i}_day`,
+						next: `history_${i}_content`,
 						arrowup: (i === 0)? "address_2_kanji" : `history_${i - 1}_month`,
 						arrowdown: (i === 28)? "" : `history_${i + 1}_month`,
 						type: "text"
@@ -447,6 +420,7 @@
 						class: `history content ${(i < 15)? "left" : "right"}`,
 						id: `history_${i}_content`,
 						style: `top: ${style_top_buffer}px`,
+						index: i,
 
 						next: `history_${i + 1}_year`,
 						arrowup: (i === 0)? "address_2_kanji" : `history_${i - 1}_content`,
@@ -460,6 +434,33 @@
 					(i === 21)? 613 : Math.round((style_top_buffer + 54.81) * 1000) / 1000;
 			};
 			return template_string_buffer;
+		})(),
+
+		el("label", {
+			class: "hide_while_print",
+			id: "about_myself_fontsize_placeholder",
+			style: `
+				top: 975px;
+				left: 2000px;
+			`
+		}, [
+			"文字サイズ: ",
+			el("span", { id: "about_myself_fontsize_px" }, ["24"])(),
+			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
+			input_temp({ id: "about_myself_fontsize", type: "range", min: "20", max: "40", value: "24", style: "width: 200px"})()
+		])(),
+
+		el("textarea", {
+			id: "about_myself",
+			style: `
+				top: 1010px;
+				left: 1333px;
+				height: 311.5px;
+				width: 1003.5px;
+				font-size: 24px;
+			`,
+			wrap: "hard",
+			arrowdown: "wishes_0"
 		})(),
 
 		(function() {
@@ -476,6 +477,7 @@
 			};
 			return template_string_buffer;
 		})()
+
 	])().replace(/\t/g, ""));
 
 	const user_state = {
@@ -518,27 +520,26 @@
 		});
 	};
 
-	function check_query(target) {
-		function align_content(target) {
-			setTimeout(function() {							
-				if(/学歴|職歴|賞罰|学\u3000歴|職\u3000歴|賞\u3000罰|以上/.test(target.value)) {
-					// target.blur();
-					$.id(target.id + "_year").value = "";
-					$.id(target.id + "_month").value = "";
-					target.style.textAlign = "center";
-					if(target.value === "以上") {
-						target.style.textAlign = "right";
-					} else {
-						if(/学歴|職歴|賞罰/.test(target.value)) {
-							target.value = target.value.split("").join("\u3000");
-						};
-					};
+	function align_content(target) {
+		setTimeout(function() {							
+			if(/学歴|職歴|賞罰|学\u3000歴|職\u3000歴|賞\u3000罰|以上/.test(target.value)) {
+				$.id(`history_${target.getAttribute("index")}_year`).value = "";
+				window.localStorage.removeItem(`history_${target.getAttribute("index")}_year`);
+				$.id(`history_${target.getAttribute("index")}_month`).value = "";
+				window.localStorage.removeItem(`history_${target.getAttribute("index")}_month`);
+				target.style.textAlign = "center";
+				if(target.value === "以上") {
+					target.style.textAlign = "right";
 				} else {
-					target.style.textAlign = "left";
+					if(/学歴|職歴|賞罰/.test(target.value)) {
+						target.value = target.value.split("").join("\u3000");
+					};
 				};
-			}, 0)
-		};
-		align_content(target);
+			} else {
+				target.style.textAlign = "left";
+			};
+			window.localStorage.setItem(target.id + ":text_align", target.style.textAlign);
+		}, 0);
 	};
 
 	const date = new Date();
@@ -602,7 +603,6 @@
 			"change",
 
 			function(event) {
-				console.log(event.target.id);
 
 				switch(event.target.tagName) {
 					case "INPUT":
@@ -613,21 +613,21 @@
 								});
 							break;
 							default:
-								if(/history_[0-9]{,2}_content/.test(event.target.id)) {
-									console.log("wow");	
-									check_query(event.target);
+								if(/history_[0-9]{0,2}_content/.test(event.target.id)) {
+									console.log("wow");
+									align_content(event.target);
 								};
 						}
 					break;
 				};
 
-				if(event.target.value_cache !== event.target.value) {
-					window.localStorage.setItem(event.target.id, event.target.value);
-					console.log("saved");
-					event.target.value_cache = event.target.value;
-				};
-
-
+				setTimeout(function() {
+					if(event.target.value_cache !== event.target.value) {
+						window.localStorage.setItem(event.target.id, event.target.value);
+						console.log("saved");
+						event.target.value_cache = event.target.value;
+					};
+				});
 			},
 			
 			{ passive: true }
@@ -683,16 +683,15 @@
 		window.addEventListener(...arguments[0])
 	});
 
-	$.all`input:not(#age, .date), textarea`.forEach(function(element) {
-		const local_value = window.localStorage.getItem(element.id);
+	$.all`input:not(#age, .date, [type=range]), textarea`.forEach(function(element) {
+		const [local_value, text_align] = [window.localStorage.getItem(element.id), window.localStorage.getItem(element.id + ":text_align")];
 		element.value = local_value? local_value : "";
+		if(text_align) {
+			element.style.textAlign = text_align;
+		};
 	});
 
 	$.id`shimei_kanji`.select();
-
-	$.all("input.history.content").forEach(function(target) {
-		align_content(target);
-	});
 
 	refresh_age();
 
