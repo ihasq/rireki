@@ -524,9 +524,7 @@
 		setTimeout(function() {							
 			if(/学歴|職歴|賞罰|学\u3000歴|職\u3000歴|賞\u3000罰|以上/.test(target.value)) {
 				$.id(`history_${target.getAttribute("index")}_year`).value = "";
-				window.localStorage.removeItem(`history_${target.getAttribute("index")}_year`);
 				$.id(`history_${target.getAttribute("index")}_month`).value = "";
-				window.localStorage.removeItem(`history_${target.getAttribute("index")}_month`);
 				target.style.textAlign = "center";
 				if(target.value === "以上") {
 					target.style.textAlign = "right";
@@ -538,7 +536,6 @@
 			} else {
 				target.style.textAlign = "left";
 			};
-			window.localStorage.setItem(target.id + ":text_align", target.style.textAlign);
 		}, 0);
 	};
 
@@ -623,7 +620,6 @@
 
 				setTimeout(function() {
 					if(event.target.value_cache !== event.target.value) {
-						window.localStorage.setItem(event.target.id, event.target.value);
 						console.log("saved");
 						event.target.value_cache = event.target.value;
 					};
@@ -659,6 +655,10 @@
 			"beforeunload",
 
 			function(event) {
+				$.all`input:not(#age, .date, [type=range]), textarea`.forEach(function(element) {
+					window.localStorage.setItem(element.id, element.value);
+					window.localStorage.setItem(element.id + ":text_align", element.style.textAlign);
+				});
 				if(!user_state.autosave) {
 					event.preventDefault();
 				};
