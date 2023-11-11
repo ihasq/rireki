@@ -45,7 +45,8 @@
 			font-size: 25px;
 			text-align: right;
 		`,
-		arrowdown: "shimei_kana"
+		arrowdown: "shimei_kana",
+		min: 1,
 	});
 
 	const birth_temp = input_temp({
@@ -235,17 +236,19 @@
 
 		date_temp({
 			id: "date_year",
-			style: "left: 590px; width: 68px;"
+			style: "left: 590px; width: 68px;",
 		})(),
 
 		date_temp({
 			id: "date_month",
-			style: "left: 686px; width: 34px;"
+			style: "left: 686px; width: 34px;",
+			max: 12,
 		})(),
 
 		date_temp({
 			id: "date_day",
-			style: "left: 740px; width: 34px;"
+			style: "left: 740px; width: 34px;",
+			max: 31,
 		})(),
 
 		shimei_temp({
@@ -286,6 +289,7 @@
 				width: 46px;
 			`,
 			value: "04",
+			max: "12",
 		})(),
 
 		birth_temp({
@@ -295,6 +299,7 @@
 				width: 50px;
 			`,
 			value: "01",
+			max: "31",
 		})(),
 
 		input_temp({
