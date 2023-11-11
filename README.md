@@ -3,7 +3,7 @@
 ```
 git clone https://github.com/ihasq/rireki.git
 cd rireki
-npx serve
+npx serve -L
 ```
 ## ライセンス
 MIT
