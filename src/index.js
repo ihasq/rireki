@@ -172,7 +172,7 @@
 		}, [
 
 			el("a", {
-				href: "https://doda.jp/guide/rireki/",
+				href: "https://doda.jp/guide/rireki/#bookmark_Count_01",
 				target: "_blank",
 			}, ["履歴書の書きかた"])(),
 
@@ -474,40 +474,44 @@
 	])().replace(/\t/g, ""));
 
 	const user_state = {
-		confirmation: {
-			leave_without_autosave: false,
-		},
 		autosave: true,
 	};
 
-	const arrow_ref_cache = Object.create(null); 
+	// const arrow_ref_cache = Object.create(null); 
 	
+	// setTimeout(function() {
+	// 	$.all`input, textarea`.forEach(function(element) {
+	// 		arrow_ref_cache[element.id] = Object.create(null);
+	// 		["arrowup", "arrowdown"].forEach(function(code) {
+	// 			arrow_ref_cache[element.id][code] = element.getAttribute(code);
+	// 			element.removeAttribute(code);
+	// 		});
+	// 	});
+	// });
+
+	const date_buffer = Object.create(null);
+
 	setTimeout(function() {
-		document.querySelectorAll("input, textarea").forEach(function(element) {
-			arrow_ref_cache[element.id] = Object.create(null);
-			["arrowup", "arrowdown"].forEach(function(code) {
-				arrow_ref_cache[element.id][code] = element.getAttribute(code);
-				element.removeAttribute(code);
-			});
+		Object.assign(date_buffer, {
+			birth_year: Number($.id`birth_year`.value),
+			birth_month: Number($.id`birth_month`.value),
+			birth_day: Number($.id`birth_day`.value),
+			date_year: Number($.id`date_year`.value),
+			date_month: Number($.id`date_month`.value),
+			date_day: Number($.id`date_day`.value),
 		});
+		console.dir(date_buffer);
 	});
 
-	function refresh_age() {
-		const dateBuffer = {
-			birth: {
-				year: Number($.id("birth_year").value),
-				month: Number($.id("birth_month").value),
-				day: Number($.id("birth_day").value),
-			},
-			date: {
-				year: Number($.id("date_year").value),
-				month: Number($.id("date_month").value),
-				day: Number($.id("date_day").value),
-			},
-		};
-		$.id("age").value = dateBuffer.date.year - dateBuffer.birth.year - (new Date(dateBuffer.date.year, dateBuffer.date.month - 1, dateBuffer.date.day) < new Date(dateBuffer.date.year, dateBuffer.birth.month - 1, dateBuffer.birth.day));
+	function refresh_age(target) {
+		setTimeout(function() {
+			if(target) {
+				date_buffer[target.id] = Number(target.value);
+				$.id(target.id).value = "0".repeat((/_year/.test(target.id)? 4 : 2) - target.value.length) + target.value;
+			};
+			$.id("age").value = date_buffer.date_year - date_buffer.birth_year - (new Date(date_buffer.date_year, date_buffer.date_month - 1, date_buffer.date_day) < new Date(date_buffer.date_year, date_buffer.birth_month - 1, date_buffer.birth_day));
+		});
 	};
-
 
 	function check_query(target) {
 		function align_content(target) {
@@ -527,7 +531,7 @@
 				} else {
 					target.style.textAlign = "left";
 				};
-			})
+			}, 0)
 		};
 		switch(typeof target) {
 			case "string":
@@ -587,8 +591,9 @@
 
 							default:
 
-								if(/(birth|date)_(year|month|date)/.test(event.target.id)) {
-									setTimeout(refresh_age)
+								if(event.target.id in date_buffer) {
+									console.log("called")
+									refresh_age(event.target);
 								};
 						};
 
@@ -637,8 +642,8 @@
 			
 			function(event) {
 				if(event.target.id === "about_myself_fontsize") {
-					$.id("about_myself").style.fontSize = event.target.value + "px";
-					$.id("about_myself_fontsize_px").textContent = event.target.value;
+					$.id`about_myself`.style.fontSize = event.target.value + "px";
+					$.id`about_myself_fontsize_px`.textContent = event.target.value;
 				};
 			},
 
@@ -682,14 +687,15 @@
 		window.addEventListener(...arguments[0])
 	});
 
-	
-	$.id("shimei_kanji").select();
-	
-	$.all("input:not(#age, .date), textarea").forEach(function(element) {
+	$.all`input:not(#age, .date), textarea`.forEach(function(element) {
 		const local_value = window.localStorage.getItem(element.id);
 		element.value = local_value? local_value : "";
 	});
 
+	$.id`shimei_kanji`.select();
+
 	check_query("all");
+
+	refresh_age();
 
 };
