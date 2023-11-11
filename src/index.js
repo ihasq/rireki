@@ -445,12 +445,12 @@
 					})(),
 					input_temp({
 						class: `history content ${(i < 15)? "left" : "right"}`,
-						id: `history_${i}`,
+						id: `history_${i}_content`,
 						style: `top: ${style_top_buffer}px`,
 
 						next: `history_${i + 1}_year`,
-						arrowup: (i === 0)? "address_2_kanji" : `history_${i - 1}`,
-						arrowdown: (i === 28)? "" : `history_${i + 1}`,
+						arrowup: (i === 0)? "address_2_kanji" : `history_${i - 1}_content`,
+						arrowdown: (i === 28)? "" : `history_${i + 1}_content`,
 						type: "text",
 						placeholder: (i === 0)? "「学歴」「職歴」「賞罰」のいずれかを入力して開始、「以上」で終了" : ""
 					})(),
@@ -538,18 +538,7 @@
 				};
 			}, 0)
 		};
-		switch(typeof target) {
-			case "string":
-				if(target === "all") {
-					$.all("input.history.content").forEach(function(target) {
-						align_content(target);
-					})
-				}
-			break;
-			case "object":
-				align_content(target);
-			break;
-		}
+		align_content(target);
 	};
 
 	const date = new Date();
@@ -613,6 +602,7 @@
 			"change",
 
 			function(event) {
+				console.log(event.target.id);
 
 				switch(event.target.tagName) {
 					case "INPUT":
@@ -623,7 +613,8 @@
 								});
 							break;
 							default:
-								if(/history_[0-9]/.test(event.target.id)) {			
+								if(/history_[0-9]{,2}_content/.test(event.target.id)) {
+									console.log("wow");	
 									check_query(event.target);
 								};
 						}
@@ -632,7 +623,7 @@
 
 				if(event.target.value_cache !== event.target.value) {
 					window.localStorage.setItem(event.target.id, event.target.value);
-					console.log("saved")
+					console.log("saved");
 					event.target.value_cache = event.target.value;
 				};
 
@@ -699,7 +690,9 @@
 
 	$.id`shimei_kanji`.select();
 
-	check_query("all");
+	$.all("input.history.content").forEach(function(target) {
+		align_content(target);
+	});
 
 	refresh_age();
 
